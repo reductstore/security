@@ -6,7 +6,6 @@ This repository contains documentation for Cyber Resilience Act (CRA) compliance
 ## Project Structure & Module Organization
 - `README.md`: entry point and high-level overview.
 - `docs/`: place new documentation here (create as needed), grouped by area (e.g., `docs/policies/`, `docs/threat-models/`, `docs/checklists/`).
-- `.idea/`: local IDE settings; avoid committing user-specific workspace files where possible.
 
 ## Build, Test, and Development Commands
 This is a documentation-only repository; there is no build output or runtime.
