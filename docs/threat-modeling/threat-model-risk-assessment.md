@@ -221,7 +221,7 @@ Priority is driven by the highest-risk threat(s) a control addresses.
 
 | Priority | Control | Addresses | Notes / evidence to capture | Tracking (issue/PR) |
 |---|---|---|---|---|
-| P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS | TODO |
+| P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS | [#14](https://github.com/reductstore/security/issues/14) |
 | P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags | TODO |
 | P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | TODO |
 | P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | TODO |
