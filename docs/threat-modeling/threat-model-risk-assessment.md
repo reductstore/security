@@ -222,16 +222,16 @@ Priority is driven by the highest-risk threat(s) a control addresses.
 | Priority | Control | Addresses | Notes / evidence to capture | Tracking (issue/PR) |
 |---|---|---|---|---|
 | P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS | [#14](https://github.com/reductstore/security/issues/14) |
-| P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags | TODO |
-| P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | TODO |
-| P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | TODO |
-| P0 | Prevent secrets exposure in CI (especially for public repos) | TM-5, TM-8 | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | TODO |
+| P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags | [#15](https://github.com/reductstore/security/issues/15) |
+| P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | [#16](https://github.com/reductstore/security/issues/16) |
+| P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | [#17](https://github.com/reductstore/security/issues/17) |
+| P0 | Prevent secrets exposure in CI (especially for public repos) | TM-5, TM-8 | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | [#18](https://github.com/reductstore/security/issues/18) |
 | P1 | Pin third-party actions by commit SHA | TM-6, TM-12 | Workflow diffs showing pinned SHAs | TODO |
 
 ### 3–5. CI runners, dependencies, and publishing
 | Priority | Control | Addresses | Notes / evidence to capture | Tracking (issue/PR) |
 |---|---|---|---|---|
-| P0 | Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory | TODO |
+| P0 | Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory | [#19](https://github.com/reductstore/security/issues/19) |
 | P1 | Dependency/base image pinning and verification | TM-12, TM-13, TM-14 | Lockfiles, digests, provenance/SBOM if available | TODO |
 | P1 | Use ephemeral, isolated runners for releases | TM-9, TM-10 | Runner type, isolation model, cache policy | TODO |
 | P2 | Prevent tag overwrite where possible | TM-16 | Registry policies; release immutability guidance | TODO |
