@@ -3,6 +3,7 @@
 This guide describes a practical security baseline for ReductStore repositories (public and private). It targets supply-chain risks in areas **1–5** of the threat model: contributors, GitHub controls, GitHub Actions, runner execution, dependencies, and publishing.
 
 Reference: [Threat Modeling & Risk Assessment](../threat-modeling/threat-model-risk-assessment.md).
+Related guide: [GitHub User Management (Access + Authentication + Commit Trust)](./github-user-management.md).
 
 ## 1) Repository + Org Baseline
 - Require org-wide **2FA** and least-privilege team membership.
