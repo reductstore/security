@@ -36,6 +36,7 @@ class MitigationRow:
     control: str
     addresses: str
     notes: str
+    status: str
     tracking: str
 
 
@@ -85,18 +86,25 @@ def normalize_cell(value: str) -> str:
     return re.sub(r"\s+", " ", value.strip())
 
 
-def parse_markdown_table_row(line: str) -> Optional[Tuple[str, str, str, str, str]]:
+def parse_markdown_table_row(line: str) -> Optional[Tuple[str, str, str, str, str, str]]:
     if not line.lstrip().startswith("|"):
         return None
     if re.match(r"^\|\s*-+\s*\|", line):
         return None
     cells = [normalize_cell(c) for c in line.strip().strip("|").split("|")]
-    if len(cells) != 5:
+    # Backwards-compatible parsing:
+    # - legacy table format: Priority | Control | Addresses | Notes | Tracking
+    # - current table format: Priority | Control | Addresses | Notes | Status | Tracking
+    if len(cells) == 5:
+        priority, control, addresses, notes, tracking = cells
+        status = ""
+    elif len(cells) == 6:
+        priority, control, addresses, notes, status, tracking = cells
+    else:
         return None
-    priority, control, addresses, notes, tracking = cells
     if not priority or not control:
         return None
-    return priority, control, addresses, notes, tracking
+    return priority, control, addresses, notes, status, tracking
 
 
 def find_mitigation_row(control_name: str, content: str) -> MitigationRow:
@@ -105,7 +113,7 @@ def find_mitigation_row(control_name: str, content: str) -> MitigationRow:
         parsed = parse_markdown_table_row(line)
         if not parsed:
             continue
-        priority, control, addresses, notes, tracking = parsed
+        priority, control, addresses, notes, status, tracking = parsed
         if control == wanted:
             return MitigationRow(
                 line_index=idx,
@@ -113,6 +121,7 @@ def find_mitigation_row(control_name: str, content: str) -> MitigationRow:
                 control=control,
                 addresses=addresses,
                 notes=notes,
+                status=status,
                 tracking=tracking,
             )
     raise SystemExit(
@@ -200,7 +209,7 @@ def update_tracking_cell(
     updated_tracking = f"[#{issue_number}]({issue_url})"
 
     cells = [c for c in original.strip().strip("|").split("|")]
-    if len(cells) != 5:
+    if len(cells) not in (5, 6):
         raise SystemExit("Internal error: unexpected table row cell count.")
 
     cells[-1] = f" {updated_tracking} "
