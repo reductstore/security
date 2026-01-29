@@ -1,5 +1,7 @@
 # Threat Modeling & Risk Assessment (SDLC + Distribution)
 
+Implementation guide: [Secure GitHub Repository Setup (Maintainer Guide)](../guides/secure-github-repo-setup.md).
+
 ## Scope (Current)
 This threat model covers the **software development lifecycle and release/distribution pipeline** for ReductStore, including:
 - Source code hosted on **GitHub** (mix of public and private repositories)
