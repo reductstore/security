@@ -12,6 +12,22 @@ THREAT_MODEL_PATH = Path("docs/threat-modeling/threat-model-risk-assessment.md")
 GUIDE_REPO_SETUP = Path("docs/guides/secure-github-repo-setup.md")
 GUIDE_USER_MGMT = Path("docs/guides/github-user-management.md")
 
+DEFAULT_REPOS = [
+    "reductstore",
+    "reduct-rs",
+    "reduct-cpp",
+    "reduct-js",
+    "reduct-go",
+    "reduct-py",
+    "reduct-cli",
+    "web-console",
+    "reductstore_agent",
+    "reductstore-enterprise",
+    "ros-ext",
+    "select-ext",
+    "reduct-grafana",
+]
+
 
 @dataclass(frozen=True)
 class MitigationRow:
@@ -41,8 +57,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--repos",
         nargs="+",
-        required=True,
-        help="Repos to implement the mitigation in (e.g., reductstore/reductstore).",
+        default=[],
+        help=(
+            "Repos to implement the mitigation in. "
+            "If omitted, uses the standard ReductStore repo list."
+        ),
     )
     parser.add_argument(
         "--dry-run",
@@ -106,20 +125,25 @@ def build_issue_body(row: MitigationRow, repos: List[str]) -> str:
     tm_ids = [t.strip() for t in row.addresses.split(",") if t.strip()]
     tm_list = ", ".join(tm_ids) if tm_ids else row.addresses
 
-    checklist = "\n".join([f"- [ ] Implement in `{r}`" for r in repos])
+    checklist = "\n".join(
+        [f"- [ ] Apply mitigation in `{r}` (code/pipeline/settings as needed)" for r in repos]
+    )
 
     guidance_links: List[str] = []
     if GUIDE_REPO_SETUP.exists():
-        guidance_links.append(f"- `{GUIDE_REPO_SETUP}`")
+        guidance_links.append(f"- [{GUIDE_REPO_SETUP}]({GUIDE_REPO_SETUP})")
     if GUIDE_USER_MGMT.exists():
-        guidance_links.append(f"- `{GUIDE_USER_MGMT}`")
-    guidance_links.append(f"- `{THREAT_MODEL_PATH}` (Mitigation Candidates table)")
+        guidance_links.append(f"- [{GUIDE_USER_MGMT}]({GUIDE_USER_MGMT})")
+    guidance_links.append(f"- [{THREAT_MODEL_PATH}]({THREAT_MODEL_PATH}) (Mitigation Candidates table)")
 
     evidence = row.notes if row.notes and row.notes != "TODO" else "TBD"
 
     return "\n".join(
         [
-            f"# SSDLC Mitigation: {row.control}",
+            "# SSDLC Mitigation",
+            "",
+            "## Control",
+            f"- **Control:** {row.control}",
             "",
             "## Threat model coverage",
             f"- **Addresses:** {tm_list}",
@@ -134,7 +158,9 @@ def build_issue_body(row: MitigationRow, repos: List[str]) -> str:
             "## Evidence to capture",
             f"- {evidence}",
             "",
-            "## Implementation checklist (repos)",
+            "## Affected repositories",
+            "Apply the relevant changes (code/pipeline/settings) per repository:",
+            "",
             checklist,
             "",
             "## Completion criteria",
@@ -189,8 +215,10 @@ def main() -> None:
     content = THREAT_MODEL_PATH.read_text(encoding="utf-8")
     row = find_mitigation_row(args.control, content)
 
+    repos = args.repos or DEFAULT_REPOS
+
     issue_title = f"{args.title_prefix} {row.control}"
-    issue_body = build_issue_body(row=row, repos=args.repos)
+    issue_body = build_issue_body(row=row, repos=repos)
 
     if args.dry_run:
         print(issue_title)

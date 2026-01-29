@@ -1,6 +1,6 @@
 ---
 name: create-ssdlc-mitigation-issue
-description: Create a tracking GitHub issue for an SSDLC mitigation control listed in docs/threat-modeling/threat-model-risk-assessment.md (Mitigation Candidates), including TM IDs addressed, motivation, links to docs/guides, and a per-repo implementation checklist; then update the mitigation table Tracking column with the created issue link.
+description: Create a mitigation tracking GitHub issue and update the threat model table tracking link.
 ---
 
 # Create SSDLC Mitigation Issue
@@ -16,20 +16,42 @@ Choose a **Control** value from:
 `docs/threat-modeling/threat-model-risk-assessment.md` → “Mitigation Candidates (To Be Confirmed/Implemented)”.
 
 ### 3) Create the issue and update the table
-Run the helper script with a list of repos where the mitigation must be implemented:
+The script maintains a standard list of repos where mitigations may require changes (code, pipelines, or settings):
+
+- `reductstore`
+- `reduct-rs`
+- `reduct-cpp`
+- `reduct-js`
+- `reduct-go`
+- `reduct-py`
+- `reduct-cli`
+- `web-console`
+- `reductstore_agent`
+- `reductstore-enterprise`
+- `ros-ext`
+- `select-ext`
+- `reduct-grafana`
+
+Run the helper script (omit `--repos` to use the standard list):
 
 ```bash
 python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
-  --control "Enforce branch protections + required reviews" \
-  --repos reductstore/reductstore reductstore/security
+  --control "Enforce branch protections + required reviews"
 ```
 
 If the control name contains backticks (e.g., ``Least-privilege `GITHUB_TOKEN` permissions``), use single quotes:
 
 ```bash
 python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
-  --control 'Least-privilege `GITHUB_TOKEN` permissions' \
-  --repos reductstore/reductstore reductstore/security
+  --control 'Least-privilege `GITHUB_TOKEN` permissions'
+```
+
+To override the repo list for a mitigation that only applies to specific repos:
+
+```bash
+python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
+  --control "Enforce branch protections + required reviews" \
+  --repos reductstore reduct-rs
 ```
 
 The script will:
@@ -38,7 +60,7 @@ The script will:
   - TM(s) addressed
   - motivation/context
   - links to `docs/guides/*` and the threat model
-  - a per-repo implementation checklist
+  - a per-repo checklist for applying changes (code/pipeline/settings as needed)
 - Update the mitigation row’s “Tracking (issue/PR)” cell from `TODO` to an issue link.
 
 ### 4) Review and commit (no push unless asked)
