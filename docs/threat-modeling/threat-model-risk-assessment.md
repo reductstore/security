@@ -68,12 +68,12 @@ Workflow definitions, permissions, and tokens cross into CI execution.
 | High-trust triggers | Differences between `pull_request`, `push`, `workflow_dispatch`, `pull_request_target` |
 
 ### 3. GitHub Actions control plane → Runner execution environment
-Jobs run with ephemeral credentials/tokens and a specific runner security posture (TBD: GitHub-hosted vs self-hosted).
+Jobs run with ephemeral credentials/tokens on **GitHub-hosted runners** (no self-hosted runners).
 
 | Attack surface / entrypoint | Notes / examples |
 |---|---|
-| Runner compromise | Breakout/compromise; highest impact if any self-hosted runners exist |
-| Persistence/cross-job state | Reused workspaces, caches, long-lived runner state (self-hosted) |
+| Runner compromise | Breakout/compromise of a job environment during a release workflow |
+| Persistence/cross-job state | Cache poisoning / state reuse via dependency caches and artifacts |
 | Credentialed execution | Network/filesystem access + injected creds during publish steps |
 | Artifact/log access | Retention policies and access controls for logs/artifacts |
 
@@ -213,30 +213,34 @@ This is an initial assessment to prioritize mitigations; adjust once the release
 These are candidate controls to reduce the risks above; implementation details and ownership are tracked in the next iteration.
 
 ### 1–2. GitHub (contributors + repo controls + Actions)
-| Control | Addresses | Notes / evidence to capture |
-|---|---|---|
-| Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS |
-| Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags |
-| Pin third-party actions by commit SHA | TM-6, TM-12 | Workflow diffs showing pinned SHAs |
-| Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job |
-| Harden PR workflows for forks/untrusted code | TM-8, TM-5 | Avoid secret exposure on untrusted triggers |
+Priority is driven by the highest-risk threat(s) a control addresses.
+`P0` = addresses at least one **Critical** risk, `P1` = highest addressed risk is **High**, `P2` = highest addressed risk is **Medium/Low**.
+
+| Priority | Control | Addresses | Notes / evidence to capture | Tracking (issue/PR) |
+|---|---|---|---|---|
+| P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS | TODO |
+| P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags | TODO |
+| P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | TODO |
+| P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | TODO |
+| P0 | Prevent secrets exposure in CI (especially for public repos) | TM-5, TM-8 | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | TODO |
+| P1 | Pin third-party actions by commit SHA | TM-6, TM-12 | Workflow diffs showing pinned SHAs | TODO |
 
 ### 3–5. CI runners, dependencies, and publishing
-| Control | Addresses | Notes / evidence to capture |
-|---|---|---|
-| Use ephemeral, isolated runners for releases | TM-9, TM-10 | Runner type, isolation model, cache policy |
-| Dependency/base image pinning and verification | TM-12, TM-13, TM-14 | Lockfiles, digests, provenance/SBOM if available |
-| Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory |
-| Prevent tag overwrite where possible | TM-16 | Registry policies; release immutability guidance |
+| Priority | Control | Addresses | Notes / evidence to capture | Tracking (issue/PR) |
+|---|---|---|---|---|
+| P0 | Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory | TODO |
+| P1 | Dependency/base image pinning and verification | TM-12, TM-13, TM-14 | Lockfiles, digests, provenance/SBOM if available | TODO |
+| P1 | Use ephemeral, isolated runners for releases | TM-9, TM-10 | Runner type, isolation model, cache policy | TODO |
+| P2 | Prevent tag overwrite where possible | TM-16 | Registry policies; release immutability guidance | TODO |
 
 ### 6.x Distribution endpoints and consumers
-| Control | Addresses | Notes / evidence to capture |
-|---|---|---|
-| Deploy by immutable image digest in Reduct Cloud | TM-18, TM-19 | Deployment manifests/policies referencing digests |
-| Restrict write access to Azure binaries container | TM-20 | Storage RBAC/SAS usage and audit logs |
-| Publish checksums (and optionally signatures) for binaries | TM-20, TM-21, TM-24 | Checksum files and verification instructions |
-| Prefer digest-based references for Docker consumers docs | TM-22, TM-16 | Documentation guidance; release notes |
-| Protect the download page publishing pipeline | TM-24, TM-25 | Site build/deploy controls; DNS/TLS controls |
+| Priority | Control | Addresses | Notes / evidence to capture | Tracking (issue/PR) |
+|---|---|---|---|---|
+| P1 | Restrict write access to Azure binaries container | TM-20 | Storage RBAC/SAS usage and audit logs | TODO |
+| P1 | Publish checksums (and optionally signatures) for binaries | TM-20, TM-21, TM-24 | Checksum files and verification instructions | TODO |
+| P1 | Prefer digest-based references for Docker consumers docs | TM-22, TM-16 | Documentation guidance; release notes | TODO |
+| P2 | Deploy by immutable image digest in Reduct Cloud | TM-18, TM-19 | Deployment manifests/policies referencing digests | TODO |
+| P2 | Protect the download page publishing pipeline | TM-24, TM-25 | Site build/deploy controls; DNS/TLS controls | TODO |
 
 ## Residual Risk (Initial)
 Residual risk remains for sophisticated supply-chain attacks and account compromise; reassess after the controls above are implemented and evidenced, and after any incident affecting GitHub/CI/distribution accounts.
@@ -252,9 +256,7 @@ Residual risk remains for sophisticated supply-chain attacks and account comprom
 | Azure binaries publishing | Release engineering (TBD) | Storage policy change; quarterly |
 | `reduct.store/download` publishing + DNS/TLS | Web ops (TBD) | Site pipeline/DNS change; quarterly |
 
-## Open Context Items (To Confirm)
-- Whether PRs from forks are accepted for public repos, and how CI is permissioned for them.
-- Runner model: GitHub-hosted only vs any self-hosted runners.
-- Release process trigger: tag-based, manual approval, or scheduled; who can publish.
-- Artifact integrity posture: checksums/signatures (e.g., cosign/GPG) and whether they are required.
+## Assumptions & TBD (Context That Affects Risk)
+Threat modeling depends heavily on process details. This section lists **unknowns** that can change likelihood/impact scores and the recommended control priorities; once clarified, we update the tables above.
+
 - Reduct Cloud deployment mechanism (e.g., ECS/EKS), and how image promotion to production is controlled/audited.
