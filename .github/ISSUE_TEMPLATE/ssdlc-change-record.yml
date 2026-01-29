@@ -1,0 +1,157 @@
+name: "SSDLC Change Record"
+description: "Propose or document an SSDLC process/control change with traceability and verification."
+title: "SSDLC: <short title>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to propose or document an SSDLC update with clear scope, traceability, and verification.
+
+        If you prefer a copy/paste doc template, see `docs/templates/ssdlc-change-record.md`.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What changed and why (1–3 sentences).
+    validations:
+      required: true
+
+  - type: dropdown
+    id: trigger_type
+    attributes:
+      label: Trigger type
+      options:
+        - incident
+        - audit finding
+        - risk review
+        - regulation change
+        - improvement
+        - other
+    validations:
+      required: true
+
+  - type: input
+    id: trigger_reference
+    attributes:
+      label: Trigger reference
+      description: Issue/PR/audit item/meeting date (avoid internal URLs; use placeholders).
+      placeholder: "#123, PR #45, audit item A-17, 2026-01-29 review"
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: In scope, out of scope, and affected areas.
+      value: |
+        - In scope:
+        - Out of scope:
+        - Affected repos/components:
+        - Affected lifecycle stages: (plan | design | implement | verify | release | operate)
+    validations:
+      required: true
+
+  - type: textarea
+    id: change_details
+    attributes:
+      label: Change details
+      value: |
+        - Previous state:
+        - New state:
+        - Rationale:
+    validations:
+      required: true
+
+  - type: textarea
+    id: traceability
+    attributes:
+      label: Control mapping / traceability
+      description: Fill what applies; delete lines that do not apply.
+      value: |
+        - CRA mapping: (Article / internal requirement ID)
+        - ISO/IEC 27001 mapping: (Annex A control) (optional)
+        - Internal policies/docs updated:
+        - Threat model link(s): (TM-IDs)
+    validations:
+      required: false
+
+  - type: textarea
+    id: risk_delta
+    attributes:
+      label: Risk assessment (delta)
+      value: |
+        - Threats impacted:
+        - Likelihood change:
+        - Impact change:
+        - Residual risk:
+        - Compensating controls (if any):
+    validations:
+      required: false
+
+  - type: textarea
+    id: roles
+    attributes:
+      label: Roles & responsibilities
+      value: |
+        - Owner:
+        - Approvers:
+        - Implementers:
+        - Review cadence:
+    validations:
+      required: false
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Make verification reproducible (commands/checks + expected results) where possible.
+      value: |
+        - How to verify:
+        - Evidence to capture:
+    validations:
+      required: false
+
+  - type: textarea
+    id: rollout
+    attributes:
+      label: Rollout plan
+      value: |
+        - Effective date:
+        - Communication/training needed:
+        - Migration steps (if any):
+    validations:
+      required: false
+
+  - type: dropdown
+    id: exception_needed
+    attributes:
+      label: Exceptions / deviations needed?
+      options:
+        - "no"
+        - "yes"
+    validations:
+      required: true
+
+  - type: textarea
+    id: exception_details
+    attributes:
+      label: Exception details (if yes)
+      value: |
+        - Scope:
+        - Duration:
+        - Approver:
+        - Tracking ID:
+    validations:
+      required: false
+
+  - type: textarea
+    id: follow_ups
+    attributes:
+      label: Follow-ups
+      value: |
+        - Tasks:
+        - Due dates:
+    validations:
+      required: false
