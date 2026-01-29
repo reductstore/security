@@ -24,6 +24,14 @@ python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigat
   --repos reductstore/reductstore reductstore/security
 ```
 
+If the control name contains backticks (e.g., ``Least-privilege `GITHUB_TOKEN` permissions``), use single quotes:
+
+```bash
+python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
+  --control 'Least-privilege `GITHUB_TOKEN` permissions' \
+  --repos reductstore/reductstore reductstore/security
+```
+
 The script will:
 - Look up the mitigation row (Priority, TM IDs, evidence notes).
 - Create a GitHub issue in the current repo with:
