@@ -12,17 +12,25 @@ Related guide: [GitHub User Management (Access + Authentication + Commit Trust)]
 
 ## 2) Branch Protection / Rulesets (P0)
 Apply rulesets to `main` and any `release/*` branches:
+- Default approach: start from the exported baseline ruleset in `misc/protected_branches.json` and adapt:
+  - extend the `include` list to cover your release branches (e.g., `refs/heads/release/*`) if used
+  - add required status checks appropriate to the repo (CI/lint/tests)
 - Require **pull requests** (no direct pushes).
 - Require **1 approval**  and **CODEOWNERS** for:
   - `.github/workflows/**`, `.github/actions/**`
   - release scripts and packaging (e.g., `Dockerfile*`, build scripts)
-- Require **status checks** (CI, lint, tests) before merge.
+- Require **status checks** before merge, but keep the required set small and reliable:
+  - make “must-pass” checks cover safety-critical guarantees (build + unit tests + lint)
+  - keep flaky or “nice-to-have” checks (e.g., code coverage thresholds) informational, not required
 - Block force-pushes/deletions; require linear history if it fits your workflow.
 
 Create `CODEOWNERS` with explicit ownership for CI/CD and release paths.
 
 ## 3) Tags, Releases, and Versioning (P0)
+- Default approach: start from the exported tag ruleset in `misc/tags.json` and adapt as needed.
 - Restrict who can **create tags** and **publish releases** (maintainers only).
+- Verify the tag ruleset does what you intend for **tag creation** (not just update/delete); if not, enforce this
+  via repo permissions (e.g., only `release-managers`/maintainers can create tags).
 - Prefer immutable release identifiers:
   - Build/publish by **git tag** and record the **commit SHA** in release notes.
   - Avoid reusing tags; treat “latest” as convenience only.
@@ -92,3 +100,22 @@ jobs:
 - [ ] Pinned actions (SHA) and reviewed third-party actions
 - [ ] Publishing uses environment approval + isolated secrets
 - [ ] Prefer OIDC (AWS/Azure); rotate remaining secrets
+
+## Threat Model Coverage Notes (Repository Rulesets)
+The exported rulesets (`misc/protected_branches.json`, `misc/tags.json`) help mitigate GitHub-repo threats, but
+are not sufficient on their own.
+
+In particular:
+- They contribute to TM-3 and TM-4 by enforcing PR-based changes and signed updates to protected refs.
+- They contribute to TM-16 by discouraging tag overwrites, but you still need process + release automation
+  controls to ensure immutability end-to-end.
+
+Important boundary:
+- GitHub rulesets do not (and cannot) fully mitigate account takeover (TM-1), CI secrets exfiltration (TM-5),
+  `GITHUB_TOKEN` permission scoping (TM-7), or trigger-context confusion (TM-8). Those require a combination of
+  org access controls (see the user management guide), workflow design, and environment/secret governance.
+
+Common gaps to check for in each repo:
+- Required status checks are configured and match your CI job names.
+- Workflow/release paths are protected with CODEOWNERS and required reviews.
+- Only a small set of users can change rulesets, secrets, and release settings (see the user management guide).

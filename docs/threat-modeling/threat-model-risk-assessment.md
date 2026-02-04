@@ -219,33 +219,33 @@ These are candidate controls to reduce the risks above; implementation details a
 Priority is driven by the highest-risk threat(s) a control addresses.
 `P0` = addresses at least one **Critical** risk, `P1` = highest addressed risk is **High**, `P2` = highest addressed risk is **Medium/Low**.
 
-Status is the mitigation implementation status (across repos): `Not started` / `In progress` / `Done`.
+Status is the mitigation implementation status (across repos): `⬜ Not started` / `🟡 In progress` / `✅ Done`.
 
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS | Not started | [#14](https://github.com/reductstore/security/issues/14) |
-| P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags | Not started | [#15](https://github.com/reductstore/security/issues/15) |
-| P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | Not started | [#16](https://github.com/reductstore/security/issues/16) |
-| P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | Not started | [#17](https://github.com/reductstore/security/issues/17) |
-| P0 | Prevent secrets exposure in CI (especially for public repos) | TM-5, TM-8 | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | Not started | [#18](https://github.com/reductstore/security/issues/18) |
-| P1 | Pin third-party actions by commit SHA | TM-6, TM-12 | Workflow diffs showing pinned SHAs | Not started | TODO |
+| P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS (baseline export: `misc/protected_branches.json`) | ✅ Done | [#14](https://github.com/reductstore/security/issues/14) |
+| P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags (baseline export: `misc/tags.json`) | ✅ Done | [#15](https://github.com/reductstore/security/issues/15) |
+| P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | ⬜ Not started | [#16](https://github.com/reductstore/security/issues/16) |
+| P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | ⬜ Not started | [#17](https://github.com/reductstore/security/issues/17) |
+| P0 | Prevent secrets exposure in CI (especially for public repos) | TM-5, TM-8 | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | ⬜ Not started | [#18](https://github.com/reductstore/security/issues/18) |
+| P1 | Pin third-party actions by commit SHA | TM-6, TM-12 | Workflow diffs showing pinned SHAs | ⬜ Not started | TODO |
 
 ### 3–5. CI runners, dependencies, and publishing
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P0 | Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory | Not started | [#19](https://github.com/reductstore/security/issues/19) |
-| P1 | Dependency/base image pinning and verification | TM-12, TM-13, TM-14 | Lockfiles, digests, provenance/SBOM if available | Not started | TODO |
-| P1 | Use ephemeral, isolated runners for releases | TM-9, TM-10 | Runner type, isolation model, cache policy | Not started | TODO |
-| P2 | Prevent tag overwrite where possible | TM-16 | Registry policies; release immutability guidance | Not started | TODO |
+| P0 | Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory | ⬜ Not started | [#19](https://github.com/reductstore/security/issues/19) |
+| P1 | Dependency/base image pinning and verification | TM-12, TM-13, TM-14 | Lockfiles, digests, provenance/SBOM if available | ⬜ Not started | TODO |
+| P1 | Use ephemeral, isolated runners for releases | TM-9, TM-10 | Runner type, isolation model, cache policy | ⬜ Not started | TODO |
+| P2 | Prevent tag overwrite where possible | TM-16 | Registry policies; release immutability guidance | ⬜ Not started | TODO |
 
 ### 6.x Distribution endpoints and consumers
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P1 | Restrict write access to Azure binaries container | TM-20 | Storage RBAC/SAS usage and audit logs | Not started | TODO |
-| P1 | Publish checksums (and optionally signatures) for binaries | TM-20, TM-21, TM-24 | Checksum files and verification instructions | Not started | TODO |
-| P1 | Prefer digest-based references for Docker consumers docs | TM-22, TM-16 | Documentation guidance; release notes | Not started | TODO |
-| P2 | Deploy by immutable image digest in Reduct Cloud | TM-18, TM-19 | Deployment manifests/policies referencing digests | Not started | TODO |
-| P2 | Protect the download page publishing pipeline | TM-24, TM-25 | Site build/deploy controls; DNS/TLS controls | Not started | TODO |
+| P1 | Restrict write access to Azure binaries container | TM-20 | Storage RBAC/SAS usage and audit logs | ⬜ Not started | TODO |
+| P1 | Publish checksums (and optionally signatures) for binaries | TM-20, TM-21, TM-24 | Checksum files and verification instructions | ⬜ Not started | TODO |
+| P1 | Prefer digest-based references for Docker consumers docs | TM-22, TM-16 | Documentation guidance; release notes | ⬜ Not started | TODO |
+| P2 | Deploy by immutable image digest in Reduct Cloud | TM-18, TM-19 | Deployment manifests/policies referencing digests | ⬜ Not started | TODO |
+| P2 | Protect the download page publishing pipeline | TM-24, TM-25 | Site build/deploy controls; DNS/TLS controls | ⬜ Not started | TODO |
 
 ## Residual Risk (Initial)
 Residual risk remains for sophisticated supply-chain attacks and account compromise; reassess after the controls above are implemented and evidenced, and after any incident affecting GitHub/CI/distribution accounts.
