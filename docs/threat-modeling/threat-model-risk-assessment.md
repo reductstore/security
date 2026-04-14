@@ -148,69 +148,70 @@ Scoring uses a simple **Likelihood (L) × Impact (I)** model:
 This is an initial assessment to prioritize mitigations; adjust once the release process details are confirmed.
 
 ## Threats & Misuse Cases (No Mitigations Yet)
+Threat IDs (`TM-*`) and mitigation controls below are cross-linked to make traceability easier during review.
 
 ### 1. Contributor environment → GitHub
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-1 | Account takeover of a maintainer/developer | Malicious code/workflow changes; unauthorized releases | 3 | 5 | High (15) |
-| TM-2 | Malicious/compromised developer workstation | Unauthorized pushes, credential theft, backdoored changes | 3 | 4 | High (12) |
-| TM-3 | Abuse of elevated GitHub permissions | Bypass review controls; change branch protection; hide malicious changes | 2 | 5 | Medium (10) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-1"></a>TM-1 | Account takeover of a maintainer/developer | Malicious code/workflow changes; unauthorized releases | 3 | 5 | High (15) | [Restrict who can create tags/releases](#mit-tags-releases) |
+| <a id="tm-2"></a>TM-2 | Malicious/compromised developer workstation | Unauthorized pushes, credential theft, backdoored changes | 3 | 4 | High (12) | TBD |
+| <a id="tm-3"></a>TM-3 | Abuse of elevated GitHub permissions | Bypass review controls; change branch protection; hide malicious changes | 2 | 5 | Medium (10) | [Enforce branch protections + required reviews](#mit-branch-protections), [Restrict who can create tags/releases](#mit-tags-releases) |
 
 ### 2. GitHub (repo/org controls) → GitHub Actions
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-4 | Workflow injection via PR/workflow edits | Build/publish steps altered to ship malicious artifacts | 4 | 5 | Critical (20) |
-| TM-5 | Secrets exfiltration from CI | Publishing credential theft; lateral movement to registries/storage | 4 | 5 | Critical (20) |
-| TM-6 | Malicious reusable workflow/composite/third-party action | Remote code execution in CI with job permissions | 3 | 5 | High (15) |
-| TM-7 | Permission escalation via mis-scoped `GITHUB_TOKEN` | Repo writes, tag creation, release edits beyond intended scope | 3 | 4 | High (12) |
-| TM-8 | Trigger confusion (PR vs trusted context) | Untrusted code runs with trusted permissions/secrets | 3 | 5 | High (15) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-4"></a>TM-4 | Workflow injection via PR/workflow edits | Build/publish steps altered to ship malicious artifacts | 4 | 5 | Critical (20) | [Enforce branch protections + required reviews](#mit-branch-protections), [Restrict who can create tags/releases](#mit-tags-releases) |
+| <a id="tm-5"></a>TM-5 | Secrets exfiltration from CI | Publishing credential theft; lateral movement to registries/storage | 4 | 5 | Critical (20) | [Least-privilege `GITHUB_TOKEN` permissions](#mit-github-token-permissions), [Harden PR workflows for forks/untrusted code](#mit-pr-workflows-untrusted), [Prevent secrets exposure in CI (especially for public repos)](#mit-ci-secrets-exposure), [Prefer short-lived credentials (OIDC) for cloud publishes](#mit-oidc-cloud-publishes) |
+| <a id="tm-6"></a>TM-6 | Malicious reusable workflow/composite/third-party action | Remote code execution in CI with job permissions | 3 | 5 | High (15) | [Pin third-party actions by commit SHA](#mit-pin-actions) |
+| <a id="tm-7"></a>TM-7 | Permission escalation via mis-scoped `GITHUB_TOKEN` | Repo writes, tag creation, release edits beyond intended scope | 3 | 4 | High (12) | [Least-privilege `GITHUB_TOKEN` permissions](#mit-github-token-permissions) |
+| <a id="tm-8"></a>TM-8 | Trigger confusion (PR vs trusted context) | Untrusted code runs with trusted permissions/secrets | 3 | 5 | High (15) | [Harden PR workflows for forks/untrusted code](#mit-pr-workflows-untrusted), [Prevent secrets exposure in CI (especially for public repos)](#mit-ci-secrets-exposure) |
 
 ### 3. Actions control plane → Runner execution environment
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-9 | Runner compromise during release job | Artifact tampering; credential theft; persistent foothold (if self-hosted) | 3 | 5 | High (15) |
-| TM-10 | Cross-job contamination (cache/workspace) | Build outputs influenced by prior untrusted job state | 2 | 4 | Medium (8) |
-| TM-11 | Log/artifact exposure | Leaked tokens, internal paths, or security-relevant configuration | 3 | 3 | Medium (9) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-9"></a>TM-9 | Runner compromise during release job | Artifact tampering; credential theft; persistent foothold (if self-hosted) | 3 | 5 | High (15) | [Use ephemeral, isolated runners for releases](#mit-ephemeral-runners) |
+| <a id="tm-10"></a>TM-10 | Cross-job contamination (cache/workspace) | Build outputs influenced by prior untrusted job state | 2 | 4 | Medium (8) | [Use ephemeral, isolated runners for releases](#mit-ephemeral-runners) |
+| <a id="tm-11"></a>TM-11 | Log/artifact exposure | Leaked tokens, internal paths, or security-relevant configuration | 3 | 3 | Medium (9) | TBD |
 
 ### 4. Runner execution environment → Supply chain inputs
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-12 | Compromised dependency/action/base image | Backdoored builds; malicious runtime behavior | 3 | 5 | High (15) |
-| TM-13 | Typosquatting/dependency confusion | Wrong package/action pulled into build and executed | 3 | 4 | High (12) |
-| TM-14 | Toolchain tampering | Malicious compiler/build tool produces compromised artifacts | 2 | 5 | Medium (10) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-12"></a>TM-12 | Compromised dependency/action/base image | Backdoored builds; malicious runtime behavior | 3 | 5 | High (15) | [Pin third-party actions by commit SHA](#mit-pin-actions), [Dependency/base image pinning and verification](#mit-pin-dependencies) |
+| <a id="tm-13"></a>TM-13 | Typosquatting/dependency confusion | Wrong package/action pulled into build and executed | 3 | 4 | High (12) | [Dependency/base image pinning and verification](#mit-pin-dependencies) |
+| <a id="tm-14"></a>TM-14 | Toolchain tampering | Malicious compiler/build tool produces compromised artifacts | 2 | 5 | Medium (10) | [Dependency/base image pinning and verification](#mit-pin-dependencies) |
 
 ### 5. Runner execution environment → Distribution endpoints
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-15 | Unauthorized publish using stolen credentials | Malicious images/binaries distributed from official channels | 3 | 5 | High (15) |
-| TM-16 | Tag overwrite / mutable release artifacts | Users pull different content than expected; rollback becomes unreliable | 3 | 4 | High (12) |
-| TM-17 | Publish wrong artifact or wrong target | Confusing/mismatched downloads; accidental leakage of non-release outputs | 3 | 3 | Medium (9) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-15"></a>TM-15 | Unauthorized publish using stolen credentials | Malicious images/binaries distributed from official channels | 3 | 5 | High (15) | [Prefer short-lived credentials (OIDC) for cloud publishes](#mit-oidc-cloud-publishes) |
+| <a id="tm-16"></a>TM-16 | Tag overwrite / mutable release artifacts | Users pull different content than expected; rollback becomes unreliable | 3 | 4 | High (12) | [Prevent tag overwrite where possible](#mit-prevent-tag-overwrite), [Prefer digest-based references for Docker consumers docs](#mit-digest-based-docker-docs) |
+| <a id="tm-17"></a>TM-17 | Publish wrong artifact or wrong target | Confusing/mismatched downloads; accidental leakage of non-release outputs | 3 | 3 | Medium (9) | TBD |
 
 ### 6. Distribution endpoints → Deployments/Consumers
 
 #### 6.1 AWS ECR → Reduct Cloud (SaaS)
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-18 | Deploy wrong image digest/tag | Production runs unintended or vulnerable code | 3 | 4 | High (12) |
-| TM-19 | Unauthorized image promotion to production | Attackers introduce malicious image into SaaS | 2 | 5 | Medium (10) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-18"></a>TM-18 | Deploy wrong image digest/tag | Production runs unintended or vulnerable code | 3 | 4 | High (12) | [Deploy by immutable image digest in Reduct Cloud](#mit-deploy-by-digest) |
+| <a id="tm-19"></a>TM-19 | Unauthorized image promotion to production | Attackers introduce malicious image into SaaS | 2 | 5 | Medium (10) | [Deploy by immutable image digest in Reduct Cloud](#mit-deploy-by-digest) |
 
 #### 6.2 Azure Storage account → Binary consumers
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-20 | Binary replacement/tampering in storage | Users install a malicious binary believing it is official | 3 | 5 | High (15) |
-| TM-21 | Confusing naming/metadata (wrong binary) | Users download wrong platform/version; increased support and security risk | 3 | 2 | Medium (6) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-20"></a>TM-20 | Binary replacement/tampering in storage | Users install a malicious binary believing it is official | 3 | 5 | High (15) | [Restrict write access to Azure binaries container](#mit-azure-binaries-write-access), [Publish checksums (and optionally signatures) for binaries](#mit-publish-checksums) |
+| <a id="tm-21"></a>TM-21 | Confusing naming/metadata (wrong binary) | Users download wrong platform/version; increased support and security risk | 3 | 2 | Medium (6) | [Publish checksums (and optionally signatures) for binaries](#mit-publish-checksums) |
 
 #### 6.3 GitHub release pipeline → Docker consumers
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-22 | Malicious image published under official name | Consumers deploy compromised containers | 3 | 5 | High (15) |
-| TM-23 | Lookalike/typosquatted image confusion | Users pull attacker-controlled images by mistake | 3 | 4 | High (12) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-22"></a>TM-22 | Malicious image published under official name | Consumers deploy compromised containers | 3 | 5 | High (15) | [Prefer digest-based references for Docker consumers docs](#mit-digest-based-docker-docs) |
+| <a id="tm-23"></a>TM-23 | Lookalike/typosquatted image confusion | Users pull attacker-controlled images by mistake | 3 | 4 | High (12) | TBD |
 
 #### 6.4 Download page → Consumers
-| ID | Threat / misuse case | Primary impact | L | I | Risk |
-|---|---|---|---:|---:|---:|
-| TM-24 | Download links altered to attacker-controlled artifacts | Users receive malicious binaries/images | 2 | 5 | Medium (10) |
-| TM-25 | DNS/TLS compromise or misconfiguration | Users redirected to malicious endpoints or served tampered content | 2 | 5 | Medium (10) |
+| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
+|---|---|---|---:|---:|---:|---|
+| <a id="tm-24"></a>TM-24 | Download links altered to attacker-controlled artifacts | Users receive malicious binaries/images | 2 | 5 | Medium (10) | [Publish checksums (and optionally signatures) for binaries](#mit-publish-checksums), [Protect the download page publishing pipeline](#mit-protect-download-pipeline) |
+| <a id="tm-25"></a>TM-25 | DNS/TLS compromise or misconfiguration | Users redirected to malicious endpoints or served tampered content | 2 | 5 | Medium (10) | [Protect the download page publishing pipeline](#mit-protect-download-pipeline) |
 
 ## Mitigation Candidates (To Be Confirmed/Implemented)
 These are candidate controls to reduce the risks above; implementation details and ownership are tracked in the next iteration.
@@ -223,29 +224,29 @@ Status is the mitigation implementation status (across repos): `⬜ Not started`
 
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P0 | Enforce branch protections + required reviews | TM-3, TM-4 | Rulesets/branch protection settings, CODEOWNERS (baseline export: `misc/protected_branches.json`) | ✅ Done | [#14](https://github.com/reductstore/security/issues/14) |
-| P0 | Restrict who can create tags/releases | TM-1, TM-3, TM-4 | Release permissions and protected tags (baseline export: `misc/tags.json`) | ✅ Done | [#15](https://github.com/reductstore/security/issues/15) |
-| P0 | Least-privilege `GITHUB_TOKEN` permissions | TM-7, TM-5 | Workflow `permissions:` block per job | ⬜ Not started | [#16](https://github.com/reductstore/security/issues/16) |
-| P0 | Harden PR workflows for forks/untrusted code | TM-8, TM-5 | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | ⬜ Not started | [#17](https://github.com/reductstore/security/issues/17) |
-| P0 | Prevent secrets exposure in CI (especially for public repos) | TM-5, TM-8 | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | ⬜ Not started | [#18](https://github.com/reductstore/security/issues/18) |
-| P1 | Pin third-party actions by commit SHA | TM-6, TM-12 | Workflow diffs showing pinned SHAs | ⬜ Not started | TODO |
+| P0 | <a id="mit-branch-protections"></a>Enforce branch protections + required reviews | [TM-3](#tm-3), [TM-4](#tm-4) | Rulesets/branch protection settings, CODEOWNERS (baseline export: `misc/protected_branches.json`) | ✅ Done | [#14](https://github.com/reductstore/security/issues/14) |
+| P0 | <a id="mit-tags-releases"></a>Restrict who can create tags/releases | [TM-1](#tm-1), [TM-3](#tm-3), [TM-4](#tm-4) | Release permissions and protected tags (baseline export: `misc/tags.json`) | ✅ Done | [#15](https://github.com/reductstore/security/issues/15) |
+| P0 | <a id="mit-github-token-permissions"></a>Least-privilege `GITHUB_TOKEN` permissions | [TM-7](#tm-7), [TM-5](#tm-5) | Workflow `permissions:` block per job | ⬜ Not started | [#16](https://github.com/reductstore/security/issues/16) |
+| P0 | <a id="mit-pr-workflows-untrusted"></a>Harden PR workflows for forks/untrusted code | [TM-8](#tm-8), [TM-5](#tm-5) | CI does not run for forks without explicit approval; avoid secret exposure on untrusted triggers | ⬜ Not started | [#17](https://github.com/reductstore/security/issues/17) |
+| P0 | <a id="mit-ci-secrets-exposure"></a>Prevent secrets exposure in CI (especially for public repos) | [TM-5](#tm-5), [TM-8](#tm-8) | No secrets on PRs; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | ⬜ Not started | [#18](https://github.com/reductstore/security/issues/18) |
+| P1 | <a id="mit-pin-actions"></a>Pin third-party actions by commit SHA | [TM-6](#tm-6), [TM-12](#tm-12) | Workflow diffs showing pinned SHAs | ⬜ Not started | TODO |
 
 ### 3–5. CI runners, dependencies, and publishing
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P0 | Prefer short-lived credentials (OIDC) for cloud publishes | TM-5, TM-15 | AWS/Azure federation configs; secret inventory | ⬜ Not started | [#19](https://github.com/reductstore/security/issues/19) |
-| P1 | Dependency/base image pinning and verification | TM-12, TM-13, TM-14 | Lockfiles, digests, provenance/SBOM if available | ⬜ Not started | TODO |
-| P1 | Use ephemeral, isolated runners for releases | TM-9, TM-10 | Runner type, isolation model, cache policy | ⬜ Not started | TODO |
-| P2 | Prevent tag overwrite where possible | TM-16 | Registry policies; release immutability guidance | ⬜ Not started | TODO |
+| P0 | <a id="mit-oidc-cloud-publishes"></a>Prefer short-lived credentials (OIDC) for cloud publishes | [TM-5](#tm-5), [TM-15](#tm-15) | AWS/Azure federation configs; secret inventory | ⬜ Not started | [#19](https://github.com/reductstore/security/issues/19) |
+| P1 | <a id="mit-pin-dependencies"></a>Dependency/base image pinning and verification | [TM-12](#tm-12), [TM-13](#tm-13), [TM-14](#tm-14) | Lockfiles, digests, provenance/SBOM if available | ⬜ Not started | TODO |
+| P1 | <a id="mit-ephemeral-runners"></a>Use ephemeral, isolated runners for releases | [TM-9](#tm-9), [TM-10](#tm-10) | Runner type, isolation model, cache policy | ⬜ Not started | TODO |
+| P2 | <a id="mit-prevent-tag-overwrite"></a>Prevent tag overwrite where possible | [TM-16](#tm-16) | Registry policies; release immutability guidance | ⬜ Not started | TODO |
 
 ### 6.x Distribution endpoints and consumers
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P1 | Restrict write access to Azure binaries container | TM-20 | Storage RBAC/SAS usage and audit logs | ⬜ Not started | TODO |
-| P1 | Publish checksums (and optionally signatures) for binaries | TM-20, TM-21, TM-24 | Checksum files and verification instructions | ⬜ Not started | TODO |
-| P1 | Prefer digest-based references for Docker consumers docs | TM-22, TM-16 | Documentation guidance; release notes | ⬜ Not started | TODO |
-| P2 | Deploy by immutable image digest in Reduct Cloud | TM-18, TM-19 | Deployment manifests/policies referencing digests | ⬜ Not started | TODO |
-| P2 | Protect the download page publishing pipeline | TM-24, TM-25 | Site build/deploy controls; DNS/TLS controls | ⬜ Not started | TODO |
+| P1 | <a id="mit-azure-binaries-write-access"></a>Restrict write access to Azure binaries container | [TM-20](#tm-20) | Storage RBAC/SAS usage and audit logs | ⬜ Not started | TODO |
+| P1 | <a id="mit-publish-checksums"></a>Publish checksums (and optionally signatures) for binaries | [TM-20](#tm-20), [TM-21](#tm-21), [TM-24](#tm-24) | Checksum files and verification instructions | ⬜ Not started | TODO |
+| P1 | <a id="mit-digest-based-docker-docs"></a>Prefer digest-based references for Docker consumers docs | [TM-22](#tm-22), [TM-16](#tm-16) | Documentation guidance; release notes | ⬜ Not started | TODO |
+| P2 | <a id="mit-deploy-by-digest"></a>Deploy by immutable image digest in Reduct Cloud | [TM-18](#tm-18), [TM-19](#tm-19) | Deployment manifests/policies referencing digests | ⬜ Not started | TODO |
+| P2 | <a id="mit-protect-download-pipeline"></a>Protect the download page publishing pipeline | [TM-24](#tm-24), [TM-25](#tm-25) | Site build/deploy controls; DNS/TLS controls | ⬜ Not started | TODO |
 
 ## Residual Risk (Initial)
 Residual risk remains for sophisticated supply-chain attacks and account compromise; reassess after the controls above are implemented and evidenced, and after any incident affecting GitHub/CI/distribution accounts.
