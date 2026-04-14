@@ -26,11 +26,9 @@ The script maintains a standard list of repos where mitigations may require chan
 - `reduct-py`
 - `reduct-cli`
 - `web-console`
-- `reductstore_agent`
-- `reductstore-enterprise`
-- `ros-ext`
-- `select-ext`
+- `reductstore-pro`
 - `reduct-grafana`
+- `reduct-bridge`
 
 Run the helper script (omit `--repos` to use the standard list):
 
