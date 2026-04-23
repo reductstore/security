@@ -21,11 +21,9 @@ DEFAULT_REPOS = [
     "reduct-py",
     "reduct-cli",
     "web-console",
-    "reductstore_agent",
-    "reductstore-enterprise",
-    "ros-ext",
-    "select-ext",
+    "reductstore-pro",
     "reduct-grafana",
+    "reduct-bridge",
 ]
 
 
@@ -83,7 +81,10 @@ def parse_args() -> argparse.Namespace:
 
 
 def normalize_cell(value: str) -> str:
-    return re.sub(r"\s+", " ", value.strip())
+    value = value.strip()
+    value = re.sub(r"<a\s+id=\"[^\"]+\"></a>", "", value)
+    value = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", value)
+    return re.sub(r"\s+", " ", value)
 
 
 def parse_markdown_table_row(line: str) -> Optional[Tuple[str, str, str, str, str, str]]:

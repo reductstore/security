@@ -65,9 +65,12 @@ jobs:
 ```
 
 ### Fork PR policy (confirmed)
-- Treat fork PRs as untrusted: **no secrets**, no publish, no deployments.
-- Keep this enforceable via separate workflows:
-  - `pull_request` = build/test only
+- Treat PRs from repository branches as trusted team changes when only maintainers/team members can create them.
+- Treat fork PRs as untrusted: require explicit maintainer approval before CI runs, and do not expose secrets,
+  publish steps, or deployment credentials to those runs.
+- Keep this enforceable via workflow/job conditions:
+  - trusted branch PRs = normal CI
+  - fork PRs = maintainer-approved build/test only
   - `push`/`workflow_dispatch` on protected branches/tags = release/publish
 
 ### Third-party actions (P1)
@@ -95,7 +98,7 @@ jobs:
 
 ## Quick Checklist (Minimum)
 - [ ] Branch protections + CODEOWNERS on CI/release files
-- [ ] Fork PRs run tests only; no secrets; no publish
+- [ ] Internal branch PRs follow normal CI; fork PRs require maintainer approval and run without secrets/publish
 - [ ] Least-privilege `GITHUB_TOKEN` permissions
 - [ ] Pinned actions (SHA) and reviewed third-party actions
 - [ ] Publishing uses environment approval + isolated secrets
