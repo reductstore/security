@@ -16,6 +16,10 @@ Apply rulesets to `main` and any `release/*` branches:
   - extend the `include` list to cover your release branches (e.g., `refs/heads/release/*`) if used
   - add required status checks appropriate to the repo (CI/lint/tests)
 - Require **pull requests** (no direct pushes).
+- Exception for releases: allow **org admins** to bypass rules only to synchronize `main` and `stable`
+  with a **non-squash merge** when required by the release process. Treat this as break-glass:
+  - do not use for normal feature delivery
+  - document the reason in the PR/release notes and verify in audit logs
 - Require **1 approval**  and **CODEOWNERS** for:
   - `.github/workflows/**`, `.github/actions/**`
   - release scripts and packaging (e.g., `Dockerfile*`, build scripts)
@@ -65,6 +69,8 @@ jobs:
 ```
 
 ### Fork PR policy (confirmed)
+- This aligns with **GitHub default behavior** for fork pull requests: first-time/untrusted fork workflows
+  require maintainer approval (based on repo/org settings), and secrets are not exposed by default.
 - Treat PRs from repository branches as trusted team changes when only maintainers/team members can create them.
 - Treat fork PRs as untrusted: require explicit maintainer approval before CI runs, and do not expose secrets,
   publish steps, or deployment credentials to those runs.
