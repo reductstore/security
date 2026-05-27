@@ -216,8 +216,8 @@ Status is the mitigation implementation status (across repos): `⬜ Not started`
 ### 3–5. CI runners, dependencies, and publishing
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P0 | <a id="mit-oidc-cloud-publishes"></a>Prefer short-lived credentials (OIDC) for cloud publishes | [TM-5](#tm-5), [TM-15](#tm-15) | Azure federation configs; secret inventory | 🟡 In progress | [#19](https://github.com/reductstore/security/issues/19) |
-| P1 | <a id="mit-pin-dependencies"></a>Dependency/base image pinning and verification | [TM-12](#tm-12), [TM-13](#tm-13), [TM-14](#tm-14) | Lockfiles, digests, provenance/SBOM if available | ⬜ Not started | TODO |
+| P0 | <a id="mit-oidc-cloud-publishes"></a>Prefer short-lived credentials (OIDC) for cloud publishes | [TM-5](#tm-5), [TM-15](#tm-15) | Azure federation configs; secret inventory | ✅ Done | [#19](https://github.com/reductstore/security/issues/19) |
+| P1 | <a id="mit-pin-dependencies"></a>Dependency/base image pinning and verification | [TM-12](#tm-12), [TM-13](#tm-13), [TM-14](#tm-14) | Lockfiles, digests, provenance/SBOM if available | 🟡 In progress | [#34](https://github.com/reductstore/security/issues/34) |
 | P1 | <a id="mit-ephemeral-runners"></a>Use ephemeral, isolated runners for releases | [TM-9](#tm-9), [TM-10](#tm-10) | Runner type, isolation model, cache policy | ⬜ Not started | TODO |
 | P2 | <a id="mit-prevent-tag-overwrite"></a>Prevent tag overwrite where possible | [TM-16](#tm-16) | Registry policies; release immutability guidance | ⬜ Not started | TODO |
 
