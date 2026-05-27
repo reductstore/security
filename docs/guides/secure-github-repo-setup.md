@@ -84,13 +84,13 @@ jobs:
 - Prefer GitHub-maintained actions; review any new action before adoption.
 
 ### Environments and approvals (recommended)
-- Use GitHub **Environments** for publishing jobs (Docker Hub/AWS/Azure), with required reviewers and scoped secrets.
+- Use GitHub **Environments** for publishing jobs (Docker Hub and Azure), with required reviewers and scoped secrets.
 
 ## 5) Secrets and Credentials (P0)
 - Never print secrets: avoid `set -x`, `printenv`, and debug logs in publish jobs.
-- Prefer **short-lived credentials** where possible (GitHub **OIDC** for AWS/Azure).
+- Prefer **short-lived credentials** where possible (GitHub **OIDC** for Azure).
 - Rotate any remaining long-lived secrets on a schedule and after incidents.
-- Use separate credentials per destination (Docker Hub vs AWS vs Azure) and per environment.
+- Use separate credentials per destination (Docker Hub vs Azure) and per environment.
 
 ## 6) Dependency and Build Input Controls (P1)
 - Pin dependencies with lockfiles (where applicable) and review updates.
@@ -108,7 +108,7 @@ jobs:
 - [ ] Least-privilege `GITHUB_TOKEN` permissions
 - [ ] Pinned actions (SHA) and reviewed third-party actions
 - [ ] Publishing uses environment approval + isolated secrets
-- [ ] Prefer OIDC (AWS/Azure); rotate remaining secrets
+- [ ] Prefer OIDC (Azure); rotate remaining secrets
 
 ## Threat Model Coverage Notes (Repository Rulesets)
 The exported rulesets (`misc/protected_branches.json`, `misc/tags.json`) help mitigate GitHub-repo threats, but

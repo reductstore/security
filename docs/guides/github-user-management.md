@@ -74,7 +74,7 @@ Goal: minimize privilege abuse and reduce blast radius (TM-3, TM-7, TM-15).
 - Create tags/releases
 - Change branch protection/rulesets
 - Edit Actions workflows or secrets
-- Publish to Docker Hub/AWS/Azure
+- Publish to Docker Hub/Azure
 
 Implementation options:
 - Separate `release-managers` team from `developers`.

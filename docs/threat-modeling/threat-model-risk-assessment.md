@@ -7,11 +7,10 @@
 This threat model covers the **software development lifecycle and release/distribution pipeline** for ReductStore, including:
 - Source code hosted on **GitHub** (mix of public and private repositories)
 - CI/CD using **GitHub Actions**
-- Distribution via **Docker Hub** (public images), **AWS ECR** (cloud deployment), and **Azure Storage** (public binaries)
+- Distribution via **Docker Hub** (public images) and **Azure Storage** (public binaries)
 - The public download entry point (`reduct.store/download`) as a distribution surface
-- Deployment of **Reduct Cloud (SaaS)** from images stored in **AWS ECR** (deployment pipeline and image promotion)
 
-Out of scope for now: runtime/product deployment hardening and customer environments (can be modeled separately).
+Out of scope for now: runtime/product deployment hardening, customer environments, and managed service deployments (can be modeled separately).
 
 ## Security Objectives
 - **Integrity**: released images/binaries are built from intended source and are not tampered with.
@@ -23,8 +22,7 @@ Out of scope for now: runtime/product deployment hardening and customer environm
 - **Developers**: contribute code and workflows.
 - **External contributors** (public repos): propose changes via PRs (if enabled).
 - **CI system**: GitHub Actions control plane and runners.
-- **Service providers**: GitHub, Docker Hub, AWS, Azure.
-- **Cloud operators**: operate Reduct Cloud (SaaS) infrastructure and deployments.
+- **Service providers**: GitHub, Docker Hub, Azure.
 - **Consumers**: end users and downstream automation pulling images/downloading binaries.
 
 ## Key Assets (What We Protect)
@@ -32,7 +30,7 @@ Out of scope for now: runtime/product deployment hardening and customer environm
   - Git history, tags, releases, protected branches, CODEOWNERS/rulesets
   - GitHub Actions workflow files and reusable workflows
 - **Publishing authority**
-  - Credentials and tokens for Docker Hub, AWS ECR, Azure Storage
+  - Credentials and tokens for Docker Hub and Azure Storage
   - Any signing keys (container signing, binary signing) and checksum generation process
 - **Build integrity**
   - Runner environment configuration (hosted/self-hosted), runner images, toolchains
@@ -46,7 +44,6 @@ Out of scope for now: runtime/product deployment hardening and customer environm
   - GitHub org membership, 2FA/SSO policy, audit logs
   - Registry/storage account access control and audit trails
   - DNS/TLS for `reduct.store` and the download page publishing workflow
-  - Reduct Cloud deployment controls (image promotion policy, IAM roles, deployment logs)
 
 ## Trust Boundaries & Attack Surfaces
 
@@ -96,24 +93,15 @@ CI pushes images to registries and uploads binaries to storage.
 
 | Attack surface / entrypoint | Notes / examples |
 |---|---|
-| Credentialed publish operations | Push/upload using Docker Hub/AWS/Azure credentials |
+| Credentialed publish operations | Push/upload using Docker Hub/Azure credentials |
 | Tag/release mutability | Overwriting tags (e.g., `latest`), inconsistent release metadata |
 | Promotion without traceability | Artifacts published without clear mapping to commit/tag |
 | Accidental leakage | Publishing internal/debug artifacts or sensitive build outputs |
 
-### 6. Distribution endpoints → Deployments/Consumers
-Artifacts are consumed by automated systems (deployments) and by end users.
+### 6. Distribution endpoints → Consumers
+Artifacts are consumed by automated systems and by end users.
 
-#### 6.1 AWS ECR → Reduct Cloud (SaaS)
-The SaaS deployment system pulls/promotes images from ECR into production.
-
-| Attack surface / entrypoint | Notes / examples |
-|---|---|
-| Image selection/promotion | Which digest is deployed; promotion workflow controls |
-| Deployment pull permissions | IAM roles used by the deployment plane to pull from ECR |
-| Cross-account/replication | Replication policies and access boundaries (if used) |
-
-#### 6.2 Azure Storage account → Binary consumers
+#### 6.1 Azure Storage account → Binary consumers
 Users (and automation) download published binaries from public blob endpoints.
 
 | Attack surface / entrypoint | Notes / examples |
@@ -122,7 +110,7 @@ Users (and automation) download published binaries from public blob endpoints.
 | Object tamper/overwrite risk | Risk depends on who can write and whether versions are immutable |
 | Metadata/checksum mismatch | Incorrect/missing checksums or confusing naming |
 
-#### 6.3 GitHub release pipeline → Docker consumers
+#### 6.2 GitHub release pipeline → Docker consumers
 CI publishes images to Docker Hub; consumers pull by tag/digest from the public registry.
 
 | Attack surface / entrypoint | Notes / examples |
@@ -130,7 +118,7 @@ CI publishes images to Docker Hub; consumers pull by tag/digest from the public 
 | Docker Hub repository controls | Access control, tag mutability, retention settings |
 | Namespace confusion | Lookalike images, unauthorized publishes to similarly named repos |
 
-#### 6.4 Download page → Consumers
+#### 6.3 Download page → Consumers
 The website content and any redirects/links influence what users download.
 
 | Attack surface / entrypoint | Notes / examples |
@@ -187,27 +175,21 @@ Threat IDs (`TM-*`) and mitigation controls below are cross-linked to make trace
 | <a id="tm-16"></a>TM-16 | Tag overwrite / mutable release artifacts | Users pull different content than expected; rollback becomes unreliable | 3 | 4 | High (12) | [Prevent tag overwrite where possible](#mit-prevent-tag-overwrite), [Prefer digest-based references for Docker consumers docs](#mit-digest-based-docker-docs) |
 | <a id="tm-17"></a>TM-17 | Publish wrong artifact or wrong target | Confusing/mismatched downloads; accidental leakage of non-release outputs | 3 | 3 | Medium (9) | TBD |
 
-### 6. Distribution endpoints → Deployments/Consumers
+### 6. Distribution endpoints → Consumers
 
-#### 6.1 AWS ECR → Reduct Cloud (SaaS)
-| ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
-|---|---|---|---:|---:|---:|---|
-| <a id="tm-18"></a>TM-18 | Deploy wrong image digest/tag | Production runs unintended or vulnerable code | 3 | 4 | High (12) | [Deploy by immutable image digest in Reduct Cloud](#mit-deploy-by-digest) |
-| <a id="tm-19"></a>TM-19 | Unauthorized image promotion to production | Attackers introduce malicious image into SaaS | 2 | 5 | Medium (10) | [Deploy by immutable image digest in Reduct Cloud](#mit-deploy-by-digest) |
-
-#### 6.2 Azure Storage account → Binary consumers
+#### 6.1 Azure Storage account → Binary consumers
 | ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
 |---|---|---|---:|---:|---:|---|
 | <a id="tm-20"></a>TM-20 | Binary replacement/tampering in storage | Users install a malicious binary believing it is official | 3 | 5 | High (15) | [Restrict write access to Azure binaries container](#mit-azure-binaries-write-access), [Publish checksums (and optionally signatures) for binaries](#mit-publish-checksums) |
 | <a id="tm-21"></a>TM-21 | Confusing naming/metadata (wrong binary) | Users download wrong platform/version; increased support and security risk | 3 | 2 | Medium (6) | [Publish checksums (and optionally signatures) for binaries](#mit-publish-checksums) |
 
-#### 6.3 GitHub release pipeline → Docker consumers
+#### 6.2 GitHub release pipeline → Docker consumers
 | ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
 |---|---|---|---:|---:|---:|---|
 | <a id="tm-22"></a>TM-22 | Malicious image published under official name | Consumers deploy compromised containers | 3 | 5 | High (15) | [Prefer digest-based references for Docker consumers docs](#mit-digest-based-docker-docs) |
 | <a id="tm-23"></a>TM-23 | Lookalike/typosquatted image confusion | Users pull attacker-controlled images by mistake | 3 | 4 | High (12) | TBD |
 
-#### 6.4 Download page → Consumers
+#### 6.3 Download page → Consumers
 | ID | Threat / misuse case | Primary impact | L | I | Risk | Mitigations |
 |---|---|---|---:|---:|---:|---|
 | <a id="tm-24"></a>TM-24 | Download links altered to attacker-controlled artifacts | Users receive malicious binaries/images | 2 | 5 | Medium (10) | [Publish checksums (and optionally signatures) for binaries](#mit-publish-checksums), [Protect the download page publishing pipeline](#mit-protect-download-pipeline) |
@@ -226,15 +208,15 @@ Status is the mitigation implementation status (across repos): `⬜ Not started`
 |----------|--------------------------------------------------------------------------------------------------|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|----------------------------------------------------------|
 | P0       | <a id="mit-branch-protections"></a>Enforce branch protections + required reviews                 | [TM-3](#tm-3), [TM-4](#tm-4)                | Rulesets/branch protection settings, CODEOWNERS (baseline export: `misc/protected_branches.json`)                                                             | ✅ Done        | [#14](https://github.com/reductstore/security/issues/14) |
 | P0       | <a id="mit-tags-releases"></a>Restrict who can create tags/releases                              | [TM-1](#tm-1), [TM-3](#tm-3), [TM-4](#tm-4) | Release permissions and protected tags (baseline export: `misc/tags.json`)                                                                                    | ✅ Done        | [#15](https://github.com/reductstore/security/issues/15) |
-| P0       | <a id="mit-github-token-permissions"></a>Least-privilege `GITHUB_TOKEN` permissions              | [TM-7](#tm-7), [TM-5](#tm-5)                | Workflow `permissions:` block per job                                                                                                                         | 🟡 In progress | [#16](https://github.com/reductstore/security/issues/16) |
+| P0       | <a id="mit-github-token-permissions"></a>Least-privilege `GITHUB_TOKEN` permissions              | [TM-7](#tm-7), [TM-5](#tm-5)                | Workflow `permissions:` block per job                                                                                                                         | ✅ Done        | [#16](https://github.com/reductstore/security/issues/16) |
 | P0       | <a id="mit-pr-workflows-untrusted"></a>Harden PR workflows for forks/untrusted code              | [TM-8](#tm-8), [TM-5](#tm-5)                | Fork PRs require explicit maintainer approval before CI runs; do not expose secrets or trusted permissions to untrusted triggers                              | ✅ Done        | [#17](https://github.com/reductstore/security/issues/17) |
 | P0       | <a id="mit-ci-secrets-exposure"></a>Prevent secrets exposure in CI (especially for public repos) | [TM-5](#tm-5), [TM-8](#tm-8)                | Internal branch PRs may follow normal CI; fork PRs run without secrets; avoid `pull_request_target` unless strictly reviewed; scrub logs/artifacts for tokens | ✅ Done        | [#18](https://github.com/reductstore/security/issues/18) |
-| P1       | <a id="mit-pin-actions"></a>Pin third-party actions by commit SHA                                | [TM-6](#tm-6), [TM-12](#tm-12)              | Workflow diffs showing pinned SHAs                                                                                                                            | ⬜ Not started | [#22](https://github.com/reductstore/security/issues/22) |
+| P1       | <a id="mit-pin-actions"></a>Pin third-party actions by commit SHA                                | [TM-6](#tm-6), [TM-12](#tm-12)              | Workflow diffs showing pinned SHAs                                                                                                                            | ✅ Done        | [#22](https://github.com/reductstore/security/issues/22) |
 
 ### 3–5. CI runners, dependencies, and publishing
 | Priority | Control | Addresses | Notes / evidence to capture | Status | Tracking (issue/PR) |
 |---|---|---|---|---|---|
-| P0 | <a id="mit-oidc-cloud-publishes"></a>Prefer short-lived credentials (OIDC) for cloud publishes | [TM-5](#tm-5), [TM-15](#tm-15) | AWS/Azure federation configs; secret inventory | 🟡 In progress | [#19](https://github.com/reductstore/security/issues/19) |
+| P0 | <a id="mit-oidc-cloud-publishes"></a>Prefer short-lived credentials (OIDC) for cloud publishes | [TM-5](#tm-5), [TM-15](#tm-15) | Azure federation configs; secret inventory | 🟡 In progress | [#19](https://github.com/reductstore/security/issues/19) |
 | P1 | <a id="mit-pin-dependencies"></a>Dependency/base image pinning and verification | [TM-12](#tm-12), [TM-13](#tm-13), [TM-14](#tm-14) | Lockfiles, digests, provenance/SBOM if available | ⬜ Not started | TODO |
 | P1 | <a id="mit-ephemeral-runners"></a>Use ephemeral, isolated runners for releases | [TM-9](#tm-9), [TM-10](#tm-10) | Runner type, isolation model, cache policy | ⬜ Not started | TODO |
 | P2 | <a id="mit-prevent-tag-overwrite"></a>Prevent tag overwrite where possible | [TM-16](#tm-16) | Registry policies; release immutability guidance | ⬜ Not started | TODO |
@@ -245,7 +227,6 @@ Status is the mitigation implementation status (across repos): `⬜ Not started`
 | P1 | <a id="mit-azure-binaries-write-access"></a>Restrict write access to Azure binaries container | [TM-20](#tm-20) | Storage RBAC/SAS usage and audit logs | ⬜ Not started | TODO |
 | P1 | <a id="mit-publish-checksums"></a>Publish checksums (and optionally signatures) for binaries | [TM-20](#tm-20), [TM-21](#tm-21), [TM-24](#tm-24) | Checksum files and verification instructions | ⬜ Not started | TODO |
 | P1 | <a id="mit-digest-based-docker-docs"></a>Prefer digest-based references for Docker consumers docs | [TM-22](#tm-22), [TM-16](#tm-16) | Documentation guidance; release notes | ⬜ Not started | TODO |
-| P2 | <a id="mit-deploy-by-digest"></a>Deploy by immutable image digest in Reduct Cloud | [TM-18](#tm-18), [TM-19](#tm-19) | Deployment manifests/policies referencing digests | ⬜ Not started | TODO |
 | P2 | <a id="mit-protect-download-pipeline"></a>Protect the download page publishing pipeline | [TM-24](#tm-24), [TM-25](#tm-25) | Site build/deploy controls; DNS/TLS controls | ⬜ Not started | TODO |
 
 ## Residual Risk (Initial)
@@ -258,11 +239,5 @@ Residual risk remains for sophisticated supply-chain attacks and account comprom
 | GitHub Actions workflows | Release engineering (TBD) | Any release workflow change; quarterly |
 | CI runner security posture | Release engineering / DevOps (TBD) | Runner change; quarterly |
 | Docker Hub publishing | Release engineering (TBD) | Credential rotation; quarterly |
-| AWS ECR publishing + Reduct Cloud deployments | Cloud ops (TBD) | Deployment pipeline change; quarterly |
 | Azure binaries publishing | Release engineering (TBD) | Storage policy change; quarterly |
 | `reduct.store/download` publishing + DNS/TLS | Web ops (TBD) | Site pipeline/DNS change; quarterly |
-
-## Assumptions & TBD (Context That Affects Risk)
-Threat modeling depends heavily on process details. This section lists **unknowns** that can change likelihood/impact scores and the recommended control priorities; once clarified, we update the tables above.
-
-- Reduct Cloud deployment mechanism (e.g., ECS/EKS), and how image promotion to production is controlled/audited.
