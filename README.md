@@ -21,6 +21,8 @@ This repository contains documentation for Cyber Resilience Act (CRA) compliance
   Advisory publication, CVE assignment, embargo coordination, and downstream notification.
 - [ENISA Vulnerability Reporting Procedure](docs/policies/enisa-reporting.md): Mandatory ENISA
   reporting workflow under CRA Article 11 for actively exploited vulnerabilities.
+- [Security Update Distribution and Patching Policy](docs/policies/security-update-policy.md):
+  Supported versions, distribution channels, integrity verification, and patching commitments.
 
 ## Templates
 

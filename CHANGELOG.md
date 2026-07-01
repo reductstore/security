@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Docs: add security update distribution and patching policy (#47)
 - Docs: add ENISA reporting procedure (#46)
 - Docs: add security advisory process (#45)
 - Docs: add canonical vulnerability disclosure policy (#36)
