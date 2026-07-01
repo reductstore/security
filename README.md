@@ -23,6 +23,8 @@ This repository contains documentation for Cyber Resilience Act (CRA) compliance
   reporting workflow under CRA Article 11 for actively exploited vulnerabilities.
 - [Security Update Distribution and Patching Policy](docs/policies/security-update-policy.md):
   Supported versions, distribution channels, integrity verification, and patching commitments.
+- [Incident Response Playbook](docs/policies/incident-response.md): Incident response process
+  for security incidents affecting ReductStore products.
 
 ## Templates
 
