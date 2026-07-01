@@ -108,7 +108,7 @@ reduce regression risk and simplify user upgrades. Release communication must fo
 [Security Advisory and Public Disclosure Process](security-advisory-process.md), including advisory,
 changelog, release-note, and downstream notification requirements.
 
-  ## Backport Policy
+## Backport Policy
 
 Security fixes are backported according to severity, supported-version scope, and the risk of the
 backport itself.
