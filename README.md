@@ -19,6 +19,8 @@ This repository contains documentation for Cyber Resilience Act (CRA) compliance
   Severity classification, triage SLAs, escalation, and CRA reporting triggers.
 - [Security Advisory and Public Disclosure Process](docs/policies/security-advisory-process.md):
   Advisory publication, CVE assignment, embargo coordination, and downstream notification.
+- [ENISA Vulnerability Reporting Procedure](docs/policies/enisa-reporting.md): Mandatory ENISA
+  reporting workflow under CRA Article 11 for actively exploited vulnerabilities.
 
 ## Templates
 
