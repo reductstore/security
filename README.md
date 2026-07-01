@@ -13,6 +13,8 @@ This repository contains documentation for Cyber Resilience Act (CRA) compliance
 
 ## Policies
 
+- [Incident Response Playbook](docs/policies/incident-response.md): Start here when handling a
+  vulnerability report or security incident.
 - [Vulnerability Disclosure Policy](docs/policies/vulnerability-disclosure.md): Canonical coordinated
   vulnerability disclosure policy for ReductStore projects.
 - [Vulnerability Triage and Severity Classification Policy](docs/policies/vulnerability-triage.md):

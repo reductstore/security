@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Docs: add incident response playbook (#48)
 - Docs: add security update distribution and patching policy (#47)
 - Docs: add ENISA reporting procedure (#46)
 - Docs: add security advisory process (#45)
