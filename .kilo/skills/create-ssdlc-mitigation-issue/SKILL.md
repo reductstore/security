@@ -33,21 +33,21 @@ The script maintains a standard list of repos where mitigations may require chan
 Run the helper script (omit `--repos` to use the standard list):
 
 ```bash
-python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
+python3 .kilo/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
   --control "Enforce branch protections + required reviews"
 ```
 
 If the control name contains backticks (e.g., ``Least-privilege `GITHUB_TOKEN` permissions``), use single quotes:
 
 ```bash
-python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
+python3 .kilo/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
   --control 'Least-privilege `GITHUB_TOKEN` permissions'
 ```
 
 To override the repo list for a mitigation that only applies to specific repos:
 
 ```bash
-python3 .codex/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
+python3 .kilo/skills/create-ssdlc-mitigation-issue/scripts/create_ssdlc_mitigation_issue.py \
   --control "Enforce branch protections + required reviews" \
   --repos reductstore reduct-rs
 ```

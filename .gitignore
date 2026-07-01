@@ -1,0 +1,5 @@
+# Kilo project skills are repository configuration; keep other local Kilo state ignored.
+!.kilo/
+.kilo/*
+!.kilo/skills/
+!.kilo/skills/**
