@@ -17,6 +17,8 @@ This repository contains documentation for Cyber Resilience Act (CRA) compliance
   vulnerability disclosure policy for ReductStore projects.
 - [Vulnerability Triage and Severity Classification Policy](docs/policies/vulnerability-triage.md):
   Severity classification, triage SLAs, escalation, and CRA reporting triggers.
+- [Security Advisory and Public Disclosure Process](docs/policies/security-advisory-process.md):
+  Advisory publication, CVE assignment, embargo coordination, and downstream notification.
 
 ## Templates
 
