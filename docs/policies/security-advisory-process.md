@@ -156,11 +156,15 @@ versions.
 
 Maintainers should add additional notification when the vulnerability is high impact, likely to
 affect known integrators, or requires coordinated changes across server and client components.
+When CRA Article 11 reporting obligations apply and the ENISA reporting channel is available,
+maintainers must also follow the ENISA escalation path defined by the triage policy.
 
 Notification options include:
 
 - Direct notification to known high-impact downstream users or integrators when appropriate and
   permitted.
+- Regulatory notification to ENISA when required by CRA Article 11 and supported by the open ENISA
+  reporting workflow.
 - GitHub release notes and repository discussions that link to the advisory and fixed release.
 - Package, SDK, or container registry release metadata where supported.
 - Coordinated advisories for SDK or client libraries when the vulnerability spans server and client
@@ -194,6 +198,7 @@ For each published advisory, maintainers should retain:
 - Release notes, changelog entries, commits, pull requests, tags, packages, and image references
 - Reporter credit decision and relevant disclosure communications
 - Downstream notification records and public announcement links
+- ENISA notification records when CRA Article 11 reporting obligations apply
 
 These records supplement the evidence requirements in the
 [Vulnerability Triage and Severity Classification Policy](vulnerability-triage.md). Do not store
